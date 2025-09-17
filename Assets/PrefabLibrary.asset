@@ -17,3 +17,9 @@ MonoBehaviour:
     Prefab: {fileID: 6453426577882849428, guid: b1e43a17da96fcd4daa33069c7edd0ab, type: 3}
   - Id: wall
     Prefab: {fileID: 2056362060880827806, guid: 398dca4033ddde44cac4aaced74804a5, type: 3}
+  - Id: water
+    Prefab: {fileID: 556458724918325529, guid: 92ca4839c2b4a734a856600f1a13ad6e, type: 3}
+  - Id: mountain
+    Prefab: {fileID: 7408938342261736505, guid: 37990d792803f754a98bc5e97a7d78bf, type: 3}
+  - Id: grass
+    Prefab: {fileID: 7489716728663140202, guid: ad551dcca9341da42b2300084813d876, type: 3}

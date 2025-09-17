@@ -12,10 +12,10 @@ public class GridTilemapAdapter : MonoBehaviour
     }
 
     public Vector3 CellToWorld(Vector2Int cell) {
-        var pos = tilemap.CellToWorld(new Vector3Int(cell.x, cell.y, 0));
+        var pos = tilemap.CellToWorld(new Vector3Int(cell.x, 0, cell.y));
         // return center of cell (tile anchor might vary)
         var cellSize = tilemap.cellSize;
-        return pos + new Vector3(cellSize.x * 0.5f, cellSize.y * 0.5f, 0f);
+        return pos + new Vector3(cellSize.x * 0.5f, 0f, cellSize.y * 0.5f);
     }
 
     public Vector2Int WorldToCell(Vector3 world)

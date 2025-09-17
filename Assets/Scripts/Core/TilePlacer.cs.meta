@@ -3,7 +3,10 @@ guid: 8dd2d9fb7bf320f4b8149f9b695d5eea
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - inputService: {instanceID: 0}
+  - gridState: {fileID: 11400000, guid: 1c53808be5753b242a11553041bb845f, type: 2}
+  - ghostPrefab: {fileID: 8488689795252728514, guid: 87b451854589d0d4d92ed2b22731ed6c, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

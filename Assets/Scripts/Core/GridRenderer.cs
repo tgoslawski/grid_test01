@@ -45,7 +45,7 @@ public class GridRenderer : MonoBehaviour
             Place(change.Cell, change.Data);
     }
 
-    private void Place(Vector2Int cell, CellData data)
+    public void Place(Vector2Int cell, CellData data)
     {
         if (prefabLibrary == null) return;
         Remove(cell);
@@ -58,7 +58,7 @@ public class GridRenderer : MonoBehaviour
         spawned[cell] = go;
     }
 
-    private void Remove(Vector2Int cell)
+    public void Remove(Vector2Int cell)
     {
         if (spawned.TryGetValue(cell, out var go))
         {

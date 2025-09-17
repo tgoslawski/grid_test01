@@ -8,6 +8,7 @@ public class CellData
 {
     public string PrefabId;
     public int Rotation;
+    public int Height = 0;
 }
 
 public struct GridChange
