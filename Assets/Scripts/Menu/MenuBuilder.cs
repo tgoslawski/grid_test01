@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using R3;
 using System;
+using UnityEngine.UI;
 
+
+public enum MenuLayout { VerticalList, HorizontalList, Grid, CardHand, Deck}
 public struct MenuSelection
 {
     public readonly string id;
@@ -19,8 +22,14 @@ public struct MenuSelection
 public class MenuBuilder : MonoBehaviour
 {
     [Header("Prefab + container")]
-    [SerializeField] private MenuItem itemPrefab;    // prefab with MenuItem component
+    [SerializeField] private MenuLayout layout;
     [SerializeField] private Transform contentParent; // UI container (VerticalLayoutGroup etc.)
+    [SerializeField] private MenuLibrary menuLibrary;
+    [SerializeField] private MenuIconLibrary menuIconLibrary;
+    [SerializeField] private bool enableLabels = true;
+    [SerializeField] private bool enableTooltips = false;
+    [SerializeField] private bool enableIcons = false;
+    [SerializeField] private int gridSpacing = 3;
     [SerializeField] private int initialPoolSize = 16;
 
     // Pool internals
@@ -41,6 +50,8 @@ public class MenuBuilder : MonoBehaviour
 
     void Awake()
     {
+   
+        ApplyLayout();
         // prefill pool
         for (int i = 0; i < initialPoolSize; i++)
             pool.Push(CreateNewItem());
@@ -63,7 +74,8 @@ public class MenuBuilder : MonoBehaviour
 
     private MenuItem CreateNewItem()
     {
-        var go = Instantiate(itemPrefab, contentParent, false);
+        var prefab = menuLibrary.Resolve("main_menu");
+        var go = Instantiate(prefab, contentParent, false);
         go.gameObject.SetActive(false);
         return go;
     }
@@ -86,8 +98,16 @@ public class MenuBuilder : MonoBehaviour
             MenuItem mi = RentItem();
             mi.gameObject.SetActive(true);
 
+            Sprite iconSprite = null;
+            if (e.iconKey is not null && enableIcons)
+                iconSprite = menuIconLibrary.Resolve(e.iconKey);
+            if (!enableLabels)
+                e.label = null;
+            if (!enableTooltips)
+                e.tooltip = null;
+
             // Pass the shared internalIndexSubject to the MenuItem as Subject<int>
-            mi.Initialize(internalIndexSubject, i, e.id, e.label);
+            mi.Initialize(internalIndexSubject, i, e.id, e.label, iconSprite, e.tooltip);
 
             activeItems.Add(mi);
         }
@@ -118,15 +138,42 @@ public class MenuBuilder : MonoBehaviour
         if (pool.Count > 0)
             return pool.Pop();
 
-        // create on demand
         return CreateNewItem();
     }
 
     private void OnIndexSelected(int index)
     {
-        // defensive check
         if (index < 0 || index >= currentEntries.Count) return;
         var e = currentEntries[index];
         selectionSubject.OnNext(new MenuSelection(e.id, index));
+    }
+    
+    private void ApplyLayout()
+    {
+        foreach (var comp in contentParent.GetComponents<LayoutGroup>())
+            DestroyImmediate(comp);
+        
+        switch (layout)
+        {
+            case MenuLayout.VerticalList:
+                contentParent.gameObject.AddComponent<VerticalLayoutGroup>();
+                break;
+            case MenuLayout.HorizontalList:
+                contentParent.gameObject.AddComponent<HorizontalLayoutGroup>();
+                break;
+            case MenuLayout.CardHand:
+                contentParent.gameObject.AddComponent<HandLayoutGroup>();
+                break;
+            case MenuLayout.Deck:
+                var hlg = contentParent.gameObject.AddComponent<HorizontalLayoutGroup>();
+                hlg.spacing = 10; // adjust card spacing
+                hlg.childAlignment = TextAnchor.MiddleCenter;
+                break;
+            case MenuLayout.Grid:
+                var grid = contentParent.gameObject.AddComponent<GridLayoutGroup>();
+                grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                grid.constraintCount = gridSpacing;
+                break;
+        }
     }
 }

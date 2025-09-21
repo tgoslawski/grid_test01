@@ -19,7 +19,6 @@ public class TilePlacer : MonoBehaviour
     private Vector3 GetMouseWorldOnGround()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
         // Ground plane at Y = 0
         Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
 

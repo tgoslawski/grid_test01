@@ -1,19 +1,20 @@
-Shader "Custom/WaterReflection"
+Shader "Custom/WaterReflectionNatural"
 {
     Properties
     {
         _ReflectionTex ("Reflection Texture", 2D) = "white" {}
         _NoiseTex1 ("Noise Texture 1", 2D) = "white" {}
         _NoiseTex2 ("Noise Texture 2", 2D) = "white" {}
+        _EdgeMask ("Edge Mask Texture", 2D) = "white" {}
         _TintColor ("Water Tint", Color) = (0.2,0.5,0.7, 1)
         _TintAmount ("Tint Amount", Range(0,1)) = 0.5
         _DistortionStrength ("Distortion Strength", Range(0,1)) = 0.05
         _SpecThreshold ("Specular Threshold", Range(0,1)) = 0.9
-        _EdgeMask ("Edge Mask Texture", 2D) = "white" {}
         _RippleSpeed ("Ripple Speed", Float) = 1.0
         _RippleFreq ("Ripple Frequency", Float) = 10.0
         _RippleFadeDist ("Ripple Fade Distance", Float) = 0.5
     }
+
     SubShader
     {
         Tags { "RenderType"="Transparent" "Queue"="Transparent" }
@@ -51,13 +52,21 @@ Shader "Custom/WaterReflection"
                 float2 worldPos : TEXCOORD1;
             };
 
+            // Small UV rotation helper
+            float2 RotateUV(float2 uv, float angle)
+            {
+                float s = sin(angle);
+                float c = cos(angle);
+                float2x2 rot = float2x2(c, -s, s, c);
+                return mul(rot, uv - 0.5) + 0.5;
+            }
+
             v2f vert(appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
-                // If you want world position for edge masks, etc.
-                o.worldPos = v.vertex.xy; // or some other mapping
+                o.worldPos = v.vertex.xy; 
                 return o;
             }
 
@@ -65,15 +74,22 @@ Shader "Custom/WaterReflection"
             {
                 float2 uv = IN.uv;
 
-                // Distortion via noise
-                float2 n1 = tex2D(_NoiseTex1, uv * 1 + _Time.yz * 0.1).xy;
-                float2 n2 = tex2D(_NoiseTex2, uv * 1 + _Time.zw * 0.1).xy;
-                float2 noiseCombined = (n1 - 0.5 + n2 - 0.5); // center around zero
-                float2 offset = noiseCombined * _DistortionStrength;
-                // Maybe only apply on X
-                offset.y = 0;
+                // --- Noise layer 1 ---
+                float2 uv1 = uv * float2(1.2, 0.9) + float2(_Time.y * 0.1, 0);
+                uv1 = RotateUV(uv1, 0.3);
+                float2 n1 = tex2D(_NoiseTex1, uv1).rg - 0.5;
 
-                // Sample reflection with distortion
+                // --- Noise layer 2 ---
+                float2 uv2 = uv * float2(0.8, 1.1) + float2(0, _Time.y * 0.07);
+                uv2 = RotateUV(uv2, 1.0);
+                float2 n2 = tex2D(_NoiseTex2, uv2).rg - 0.5;
+
+                // Combine noise layers
+                float2 noiseCombined = n1 + n2;
+                float2 offset = noiseCombined * _DistortionStrength;
+                offset.y *= 0.5; // reduce vertical distortion
+
+                // Reflection sample with distortion
                 float2 reflectUV = uv + offset;
                 fixed4 refl = tex2D(_ReflectionTex, reflectUV);
 
@@ -81,17 +97,15 @@ Shader "Custom/WaterReflection"
                 fixed4 tinted = lerp(refl, _TintColor, _TintAmount);
 
                 // Specular highlights
-                float noiseSum = (n1 + n2).r; // maybe use one channel
+                float noiseSum = (n1.x + n2.x + n1.y + n2.y) * 0.25 + 0.5;
                 float spec = step(_SpecThreshold, noiseSum);
-                // Soft spec
                 float soft = smoothstep(0.0, _SpecThreshold, noiseSum);
-                tinted.rgb += spec * 1.0 + soft * 0.15; // tweak
+                tinted.rgb += spec * 0.6 + soft * 0.15;
 
                 // Edge ripples
                 fixed4 edge = tex2D(_EdgeMask, uv);
-                // Let’s suppose edge.r is mask
                 float ripple = sin(IN.worldPos.x * _RippleFreq + _Time.y * _RippleSpeed);
-                float fade = saturate(1.0 - (/*distance to edge*/ 0.5) / _RippleFadeDist);
+                float fade = saturate(1.0 - (0.5 / _RippleFadeDist));
                 float rippleEffect = ripple * edge.r * fade;
                 tinted.rgb += rippleEffect * 0.2;
 

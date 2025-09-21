@@ -2,18 +2,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using R3;
 
-public class MenuExample : MonoBehaviour
+public class CardMenu : MonoBehaviour
 {
     [SerializeField] private MenuBuilder menuBuilder;
     [SerializeField] private PrefabLibrary prefabLibrary;
     // Optional: store entries so you can reuse
     private readonly List<MenuEntry> list = new List<MenuEntry> {
-        new MenuEntry("build_house","Build House",null, "test1 Test"),
-        new MenuEntry("build_road","Build Road",null, "test2 test test test"),
-        new MenuEntry("demolish","Demolish",null, "test3"),
-        new MenuEntry("build_powerplant","Build Powerplant",null, "test234"),
-        new MenuEntry("sell","Sell",null, "sells building"),
-        new MenuEntry("buy","Buy",null, "buy building")
+        new MenuEntry { id = "attack", label = "Attack", tooltip = null, iconKey = null, children = null},
+        new MenuEntry { id = "defend", label = "Defend", tooltip = null, iconKey = null, children = null},
+        new MenuEntry { id = "heal", label = "Heal", tooltip = null, iconKey = null, children = null}
     };
     
     // Track whether the menu is currently open
