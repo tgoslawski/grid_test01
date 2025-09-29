@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73e16084b831d1c42804e0c8422082e4, type: 3}
+  m_Name: WorldTerrainPrefabs
+  m_EditorClassIdentifier: 
+  entries:
+  - Id: floor
+    Prefab: {fileID: 1220373216048895720, guid: 56b3ccab92fbfa347a3d2c492736c945, type: 3}
+  - Id: wall
+    Prefab: {fileID: 1220373216048895720, guid: 56b3ccab92fbfa347a3d2c492736c945, type: 3}
+  - Id: water
+    Prefab: {fileID: 1220373216048895720, guid: 56b3ccab92fbfa347a3d2c492736c945, type: 3}
+  - Id: mountain
+    Prefab: {fileID: 1220373216048895720, guid: 56b3ccab92fbfa347a3d2c492736c945, type: 3}
+  - Id: grass
+    Prefab: {fileID: 1220373216048895720, guid: 56b3ccab92fbfa347a3d2c492736c945, type: 3}
